@@ -1,0 +1,14 @@
+{
+  "name": "ai-labor-risk",
+  "version": "1.0.0",
+  "description": "Quantifies AI disruption risk to human labor across healthcare subsegments using the Workflow Atom Framework (Appendix A, March 2026)",
+  "author": {
+    "name": "Amulet Capital"
+  },
+  "userConfig": {
+    "onet_api_key": {
+      "description": "O*NET Web Services API key — register free at services.onetcenter.org/developer/",
+      "sensitive": false
+    }
+  }
+}

@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+.AppleDouble
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# Analysis outputs (stored in ~/.claude/plugins/data/, not here)
+analyses/
+
+# Editor
+.vscode/
+.idea/
