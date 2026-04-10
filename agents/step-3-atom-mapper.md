@@ -1,7 +1,7 @@
 ---
 name: step-3-atom-mapper
 description: Step 3 of AI labor disruption analysis. For each of the 11 tasks from Step 2, allocates 100% of time across the 12 workflow atom columns using the Appendix A boundary rules. Each row must sum exactly to 1.0. Writes to the Step 3 tab.
-model: claude-sonnet-4-6
+model: sonnet
 effort: high
 maxTurns: 25
 ---

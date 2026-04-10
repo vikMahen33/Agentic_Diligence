@@ -1,7 +1,7 @@
 ---
 name: step-2-task-inventor
-description: Step 2 of AI labor disruption analysis. Defines exactly 11 collectively exhaustive tasks that represent all roles and workstreams in the healthcare subsegment, synthesized from O*NET, job postings, internet research, and expert reasoning. Writes to the Step 2 tab.
-model: claude-sonnet-4-6
+description: Step 2 of AI labor disruption analysis. Defines exactly 11 collectively exhaustive tasks covering all roles in the healthcare subsegment, synthesized from O*NET, job postings, and expert reasoning. Writes to the Step 2 tab.
+model: sonnet
 effort: high
 maxTurns: 25
 ---

@@ -1,7 +1,7 @@
 ---
 name: step-4-weight-assigner
-description: Step 4 of AI labor disruption analysis. Assigns importance weights to each of the 11 tasks — representing each task's share of total labor time in the subsegment. Weights must sum to 1.0. Uses O*NET ratings, BLS data, and industry benchmarks. Writes to the Step 4 Weighted Calc tab.
-model: claude-sonnet-4-6
+description: Step 4 of AI labor disruption analysis. Assigns labor time weights to each of the 11 tasks using O*NET ratings, BLS data, and industry benchmarks. Weights must sum to 1.0. Writes to the Step 4 Weighted Calc tab.
+model: sonnet
 effort: high
 maxTurns: 20
 ---

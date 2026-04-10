@@ -1,7 +1,7 @@
 ---
 name: step-1-labor-estimator
 description: Step 1 of AI labor disruption analysis. Researches and estimates the human labor % of total costs for a healthcare subsegment from 3 distinct sources, then writes findings to the Step 1 tab and populates the segment name on all tabs.
-model: claude-sonnet-4-6
+model: sonnet
 effort: high
 maxTurns: 20
 ---

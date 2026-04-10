@@ -1,5 +1,6 @@
 ---
-description: Analyzes a healthcare subsegment for AI labor disruption risk using the Workflow Atom Framework. Produces an incrementally completed Excel workbook — one step at a time, pausing for analyst review after each. Usage: /ai-labor-risk:analyze-subsegment <subsegment name>. Add --auto to run all steps without pausing.
+name: analyze-subsegment
+description: Analyzes a healthcare subsegment for AI labor disruption risk using the Workflow Atom Framework. Returns an incrementally completed Excel workbook, pausing for analyst review after each of 5 steps. Add --auto to run without pausing.
 ---
 
 # AI Labor Disruption Analysis — Coordinator

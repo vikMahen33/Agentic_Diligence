@@ -1,7 +1,7 @@
 ---
 name: adversarial-reviewer
-description: Independent adversarial reasonableness check for any step of the AI labor disruption analysis. Challenges conclusions from a skeptical POV — identifies weak assumptions, missing sources, implausible outputs, and alternative interpretations. Can be invoked automatically after each step or called manually via /ai-labor-risk:review-step.
-model: claude-sonnet-4-6
+description: Adversarial review of any completed step of an AI labor disruption analysis. Identifies weak assumptions, missing sources, and implausible outputs. Invoked automatically after each step or manually via /ai-labor-risk:review-step.
+model: sonnet
 effort: high
 maxTurns: 15
 ---

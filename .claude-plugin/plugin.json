@@ -5,10 +5,13 @@
   "author": {
     "name": "Amulet Capital"
   },
+  "repository": "https://github.com/vikMahen33/Agentic_Diligence",
   "userConfig": {
     "onet_api_key": {
+      "title": "O*NET API Key",
       "description": "O*NET Web Services API key — register free at services.onetcenter.org/developer/",
-      "sensitive": false
+      "type": "string",
+      "sensitive": true
     }
   }
 }

@@ -1,7 +1,7 @@
 ---
 name: step-5-output-synthesizer
-description: Step 5 of AI labor disruption analysis. Reads the auto-calculated Final Output, performs a logic check, then writes a synthesized 2–3 sentence rationale for each task explaining the automation ceiling outcome. Writes to the Final Output tab.
-model: claude-sonnet-4-6
+description: Step 5 of AI labor disruption analysis. Reads the auto-calculated Final Output, runs a logic check, and writes a synthesized rationale per task explaining the automation ceiling outcome. Writes to the Final Output tab.
+model: sonnet
 effort: high
 maxTurns: 20
 ---
