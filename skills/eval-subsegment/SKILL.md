@@ -137,7 +137,7 @@ If the agent reports "Internal documents do not contain functional headcount or 
 
 ## Step 2.7: Stamp Final Output Tab
 
-After both benchmark agents (Step 2 and Step 2.5) have completed, update the Final Output tab in the eval workbook to mark the rationales as stale. The original Step 5 rationales (G7:G18) and sources (H7:H18) were written against the original atom allocations and weights — they no longer describe the benchmark numbers.
+After both benchmark agents (Step 2 and Step 2.5) have completed, update the Final Output tab in the eval workbook to mark the rationales as stale. The original Step 5 rationales (H7:H18) and sources (I7:I18) were written against the original atom allocations and weights — they no longer describe the benchmark numbers.
 
 ```python
 import openpyxl
@@ -146,10 +146,10 @@ wb = openpyxl.load_workbook("EVAL_WORKBOOK_PATH")
 wf = wb['Final Output']
 
 for r in range(7, 19):
-    original_rationale = wf[f'G{r}'].value or ""
-    original_source    = wf[f'H{r}'].value or ""
-    wf[f'G{r}'] = f"[BENCHMARK EVAL — rationale reflects original analysis; see Step 3 tab col R and Step 4 tab col F for benchmark sources] {original_rationale}"
-    wf[f'H{r}'] = f"[BENCHMARK] {original_source}"
+    original_rationale = wf[f'H{r}'].value or ""
+    original_source    = wf[f'I{r}'].value or ""
+    wf[f'H{r}'] = f"[BENCHMARK EVAL — rationale reflects original analysis; see Step 3 tab col R and Step 4 tab col F for benchmark sources] {original_rationale}"
+    wf[f'I{r}'] = f"[BENCHMARK] {original_source}"
 
 wb.save("EVAL_WORKBOOK_PATH")
 ```

@@ -221,13 +221,15 @@ After saving: run recalc.py to refresh the dependent formulas (Final Output D28,
 python3 "${CLAUDE_PLUGIN_ROOT}/scripts/recalc.py" "{workbook_path}"
 ```
 
-Then verify by reading back D28 and D29:
+Then verify by reading back the gross + reg-adjusted summary (Final Output rows 27, 32, 33):
 ```python
 wb = openpyxl.load_workbook(workbook_path, data_only=True)
 print(f"D27 (gross hours automated):     {wb['Final Output']['D27'].value}")
-print(f"D28 (reg-adjusted hours):        {wb['Final Output']['D28'].value}")
-print(f"D29 (avg haircut applied):       {wb['Final Output']['D29'].value}")
+print(f"D32 (reg-adjusted hours):        {wb['Final Output']['D32'].value}")
+print(f"D33 (avg haircut applied):       {wb['Final Output']['D33'].value}")
 ```
+
+Also spot-check column F on Final Output — each row's per-task reg-adjusted % of labor should equal `E[i] + (D[i] - E[i]) × haircut_i`. F is auto-computed; if any cell shows `#REF!` or doesn't update, the Step 6 D column may not be in the expected range.
 
 ---
 

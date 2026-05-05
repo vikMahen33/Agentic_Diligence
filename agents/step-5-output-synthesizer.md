@@ -126,7 +126,9 @@ Confirm all 12 E column values are numeric (not None or error). If any are null,
 
 ## Step C: Write Rationales
 
-For each of the 12 tasks, write a 2–3 sentence rationale in the **Final Output tab, column G** (G7:G18), and the primary source in **column H** (H7:H18).
+For each of the 12 tasks, write a 2–3 sentence rationale in the **Final Output tab, column H** (H7:H18), and the primary source in **column I** (I7:I18).
+
+> **Note (v1.6.0)**: Final Output column structure was updated. Column F is now reserved for the per-task regulatory-adjusted % (auto-formula referencing Step 6 Regulatory). Columns G is empty/reserved. **Rationale = column H, Sources = column I.** Do NOT write to G.
 
 ### Capex-Light Framing (v1.6.0) — Read Before Writing Rationales
 
@@ -159,7 +161,7 @@ A strong rationale answers three things:
 
 ### Specificity Standard — Non-Negotiable
 
-Every rationale (G7:G18) must be specific to this subsegment and this task. Do not copy-paste the same sentence structure across rows with only the task name swapped.
+Every rationale (H7:H18) must be specific to this subsegment and this task. Do not copy-paste the same sentence structure across rows with only the task name swapped.
 
 ✅ **Good**: "Prior authorization in vascular surgery is dominated by structured triage (Atom 5, 40–70% ceiling today) because payer decisions follow explicit MCG/InterQual criteria, and by orchestration (Atom 9, 15–40%) because authorizations span 3–7 days with multiple payer touchpoints. AI can automate eligibility queries and criteria matching, but denial management and peer-to-peer review with medical directors preserves a meaningful human residue — automation ceiling lands at the lower half of the range given the high denial complexity in vascular procedures."
 
@@ -193,8 +195,9 @@ For each row, cite the primary sources that most informed the atom allocation an
 **Column B is the Entry # column — NEVER write to it.** B7:B18 on the Final Output tab contain auto-numbered row labels.
 
 The **only** cells you may write to on this step are:
-- `Final Output` tab: **G7:G18** (synthesized rationale), **H7:H18** (source citations)
-- Columns D and E are auto-calculated from prior steps — **do NOT write to them**
+- `Final Output` tab: **H7:H18** (synthesized rationale), **I7:I18** (source citations)
+- Columns D, E, F are auto-calculated from prior steps and Step 6 — **do NOT write to them**
+- Column G is reserved/empty — do NOT write to it either
 
 ```python
 import sys
@@ -213,8 +216,8 @@ sources    = ["...", ...]  # 12 strings
 
 for i in range(12):
     row = 7 + i
-    wf[f'G{row}'] = rationales[i]
-    wf[f'H{row}'] = sources[i]
+    wf[f'H{row}'] = rationales[i]
+    wf[f'I{row}'] = sources[i]
 
 try:
     wb2.save(workbook_path)

@@ -254,8 +254,8 @@ Guidepoint transcripts: [N used, [M] cells tagged [GP] / not used]
 
 Headline numbers:
   Hours Automated Away (gross technical):     {D27}
-  Hours Automated Away (regulatory-adjusted): {D28}
-  Average regulatory haircut applied:         {D29}
+  Hours Automated Away (regulatory-adjusted): {D32}
+  Average regulatory haircut applied:         {D33}
 
 📁 Workbook: {workspace_dir}/{filename}
    (canonical: {workbook_path})

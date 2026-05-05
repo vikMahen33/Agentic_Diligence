@@ -175,7 +175,7 @@ Challenge checklist:
 
 ### Reviewing Step 5 (Final Output)
 
-Read: `Final Output` tab — D7:H17 (weights, automation %, rationales, sources), D25:D27 (summary hours)
+Read: `Final Output` tab — D7:I18 (weights D, %-at-case E, %-at-case+reg F, [G empty], rationales H, sources I), D25:D27 (gross summary), D30:D33 (reg-adjusted summary)
 
 Challenge checklist:
 - [ ] Is the total hours automated (D27) plausible for this subsegment at Today Low case under the **v1.6.0 capex-light view**? Expected ranges:
@@ -186,14 +186,14 @@ Challenge checklist:
 - [ ] Do the per-task automation levels (E column) make intuitive sense relative to the tasks?
   - High-automation tasks: billing/coding, scheduling, documentation, eligibility checking
   - Low-automation tasks: clinical judgment, patient communication, complex care coordination, all bedside care
-- [ ] Are rationales (G column) specific to this subsegment or generic healthcare boilerplate?
+- [ ] Are rationales (column **H**) specific to this subsegment or generic healthcare boilerplate?
 - [ ] **For physical-heavy tasks**: do rationales explicitly acknowledge the capex-light constraint as the binding ceiling (rather than implying robotics could close the gap)?
 - [ ] Do any rationales contradict the atom allocations or weights from prior steps? (Internal consistency check)
-- [ ] Are sources (H column) actually cited, or are they placeholders?
+- [ ] Are sources (column **I**) actually cited, or are they placeholders?
 
 ### Reviewing Step 6 (Regulatory Haircut)
 
-Read: `Step 6 Regulatory` tab — D7:G18 (haircut %, regulation, impact, URL); `Final Output` D27, D28, D29 (gross / reg-adjusted / avg haircut)
+Read: `Step 6 Regulatory` tab — D7:G18 (haircut %, regulation, impact, URL); `Final Output` D27 (gross hours automated), F7:F18 (per-task reg-adjusted % of labor), D32 (reg-adjusted hours automated), D33 (avg haircut applied)
 
 Challenge checklist:
 - [ ] **Citation quality** — Does each non-zero haircut row cite a **specific section number** (e.g., "45 CFR § 164.502(b)") rather than a generic regulation name (e.g., just "HIPAA")?
@@ -210,7 +210,7 @@ Challenge checklist:
   - Hospice/SNF analysis with no CMS Conditions of Participation reference → flag
   - Telehealth analysis with no state telehealth statute references → flag
   - Controlled substance prescribing tasks with no DEA reference → flag
-- [ ] **Magnitude check** — If average haircut (D29) is >25%, is this defensible? Most healthcare subsegments should land 5–20% average; >25% implies regulation is more constraining than capability, which is unusual.
+- [ ] **Magnitude check** — If average haircut (D33) is >25%, is this defensible? Most healthcare subsegments should land 5–20% average; >25% implies regulation is more constraining than capability, which is unusual.
 - [ ] **Zero haircuts** — For tasks with 0.00 haircut, is this defensible (no on-point regulation), or did the agent miss obvious rules? Particularly check clinical documentation, controlled substance handling, PHI routing.
 
 ---
