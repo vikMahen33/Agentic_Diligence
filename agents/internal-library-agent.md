@@ -35,9 +35,15 @@ You will receive:
 
 ---
 
-## Phase 1 — Read All Files
+## Phase 1 — Read All Files (with context-window discipline)
 
 Read every file in `folder_path` recursively. Skip nothing at the start — the analyst already curated this set.
+
+**🚨 CRITICAL — Context-window protection**
+
+PE source materials can be HUGE — a census/headcount Excel can have 200K cells, a CIM PDF can be 150 pages with image-heavy exhibits. **You must never load entire raw files into your context.** Doing so will exhaust the context window and corrupt the analysis.
+
+**Mandatory pattern for every file**: extract via Bash subprocess (output is captured; raw bytes stay outside your context), summarize/anchor in a working JSON, then **drop the raw content from working memory** before moving to the next file.
 
 ```python
 import os, json, sys
@@ -51,15 +57,67 @@ files = sorted([p for p in folder.rglob('*') if p.is_file()
 
 print(f"Found {len(files)} files in {folder}:")
 for f in files:
-    print(f"  {f.relative_to(folder)}  ({f.stat().st_size // 1024} KB)")
+    size_mb = f.stat().st_size / (1024 * 1024)
+    flag = " ⚠️ LARGE — handle carefully" if size_mb > 5 else ""
+    print(f"  {f.relative_to(folder)}  ({size_mb:.1f} MB){flag}")
 ```
 
-For each file, read end-to-end using the appropriate tool:
-- **PDFs**: use the Read tool with `pages` parameter for files >10 pages, multiple calls if needed
-- **Word docs (.docx)**: `python-docx` via Bash to extract paragraphs and tables
-- **PowerPoint (.pptx)**: `python-pptx` to extract slide text
-- **Excel (.xlsx/.xlsm)**: `openpyxl` to inspect sheet structure, headers, populated cell ranges; read tab-by-tab
-- **Plain text/Markdown**: Read tool directly
+### File-type-specific handling rules
+
+**PDFs** (use `Read` tool with `pages` parameter — never read all at once):
+- ≤10 pages: single Read call OK
+- 11–50 pages: read in chunks of 5-10 pages, summarize each chunk into your working JSON, then move on
+- >50 pages: read targeted sections only — start with TOC (page 1-3), then jump to sections most likely to contain anchors (financial exhibits, FTE tables, regulatory sections). Use the Read tool with specific `pages` ranges.
+
+**Excel files** (`.xlsx`, `.xlsm`) — most dangerous for context bloat:
+```bash
+# Step 1: inspect structure FIRST (cheap)
+python3 -c "
+import openpyxl
+wb = openpyxl.load_workbook('FILE_PATH', read_only=True, data_only=True)
+for s in wb.sheetnames:
+    ws = wb[s]
+    print(f'  Sheet {s!r}: {ws.max_row} rows × {ws.max_column} cols')
+"
+```
+- For each sheet, decide whether it's relevant (filename + sheet name + headers from row 1)
+- If relevant: extract ONLY the populated range and ONLY columns that look like anchors. Use `openpyxl` `read_only=True` + iterate row-by-row, summarizing as you go. Never call `for row in ws.iter_rows()` and dump all rows to print().
+- If a sheet has >1000 rows of granular employee-level data: extract aggregates (sum, avg, count by category) via pandas/openpyxl in subprocess, never load full table.
+- For multi-tab census files: the relevant data is usually 1-2 summary sheets. Skip detail tabs unless they're the only source.
+
+**Word docs** (`.docx`):
+```bash
+python3 -c "
+from docx import Document
+doc = Document('FILE_PATH')
+# Just print paragraph count + table count first
+print(f'Paragraphs: {len(doc.paragraphs)}, Tables: {len(doc.tables)}')
+" 
+```
+- ≤30 paragraphs + ≤5 tables: extract all
+- Larger: extract paragraphs in chunks, summarize per chunk; for tables, extract headers + first 3 rows + last row + dimensions, full content only if directly relevant
+
+**PowerPoint** (`.pptx`):
+- Use `python-pptx` in subprocess to extract slide titles + bullet text only (skip embedded images and complex shapes)
+- Process slides in batches of 10; summarize each batch before moving on
+
+**Plain text** (`.txt`, `.md`, `.csv`):
+- Check size first; if >100KB, head/tail and grep for anchors rather than full read
+
+### Working memory discipline
+
+After extracting anchors from each file:
+1. Write the file's `file_record` (per Phase 2 schema) to a temp JSON: `${analysis_dir}/.internal-wip-{file_basename}.json`
+2. Print only the file's anchor COUNT summary to your context (not the anchor content)
+3. Move to the next file with a clean slate
+4. After all files processed, read the wip JSONs back in only when assembling the Phase 3 review document
+
+This way your context only holds raw content for ONE file at a time, never the cumulative load.
+
+**Stop signals** — if at any point your processing is approaching context limits:
+- Stop reading new files
+- Report to the coordinator: "Processed N of M files; remaining files exceed processing capacity. Recommend re-running with a smaller folder, or splitting into multiple analyses."
+- Write a partial digest with what you have
 
 ---
 

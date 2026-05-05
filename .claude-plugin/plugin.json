@@ -1,6 +1,6 @@
 {
   "name": "ai-labor-risk-gp",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Quantifies AI disruption risk to human labor across healthcare subsegments using the Workflow Atom Framework v2 (Asset-Light / Capex-Constrained view, March 2026) with regulatory conservatism overlay (Step 6), Guidepoint Expert Library integration for real-world transcript sourcing, and Internal Materials Library integration for leveraging firm proprietary past-deal data.",
   "author": {
     "name": "Amulet Capital"
