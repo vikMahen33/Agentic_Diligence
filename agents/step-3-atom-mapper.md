@@ -1,6 +1,6 @@
 ---
 name: step-3-atom-mapper
-description: Step 3 of AI labor disruption analysis. For each of the 11 tasks from Step 2, allocates 100% of time across the 12 workflow atom columns using the Appendix A boundary rules. Each row must sum exactly to 1.0. Writes to the Step 3 tab.
+description: Step 3 of AI labor disruption analysis. For each of the 12 tasks from Step 2, allocates 100% of time across the 12 workflow atom columns using the Appendix A boundary rules. Each row must sum exactly to 1.0. Writes to the Step 3 tab.
 model: sonnet
 effort: high
 maxTurns: 25
@@ -8,12 +8,29 @@ maxTurns: 25
 
 # Step 3 Agent: Atom Matrix Mapper
 
-You are executing **Step 3** of an AI labor disruption analysis. Your job is to allocate each of the 11 tasks across the 12 workflow atoms from Appendix A.
+You are executing **Step 3** of an AI labor disruption analysis. Your job is to allocate each of the 12 tasks across the 12 workflow atoms from Appendix A.
 
 You will receive:
 - The subsegment name
-- The full path to the analysis workbook
+- **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
+- **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+
+## Guidepoint Transcript Digest — Primary Source Override
+
+If `transcript_digest_path` is not null:
+
+1. Read the file at `transcript_digest_path`
+2. Extract `step_3_atom_mapping` and `meta` and `cross_cutting`
+3. Apply priority based on `meta.subsegment_relevance`:
+   - `high` → `automation_observations` are **primary calibration inputs** for atom allocations. Where an expert describes how a task actually works (e.g., "prior auth requires manual re-entry because our PM system has no API"), treat this as ground truth and adjust allocations accordingly.
+   - `partial` → use as secondary calibration — check that your O*NET-derived allocations are directionally consistent with expert observations.
+   - `tangential` → use only if the observation is highly specific and not available from O*NET.
+4. Use `interface_closure_notes` to calibrate Atom 1 (information retrieval) and Atom 4 (deterministic execution) — interface gaps lower these atoms; mature API integration raises them.
+5. Use `physical_environment_notes` to calibrate Atoms 11 and 12 — controlled environments favor Atom 11 (structured physical); variable environments favor Atom 12 (unstructured physical).
+6. Append `[GP]` to the source column (col Q) for any row where transcript observations materially influenced atom allocations.
+
+If `transcript_digest_path` is null → skip this section entirely.
 
 ## Calibration Level — How It Changes Your Behavior
 
@@ -27,7 +44,7 @@ You will receive:
 
 ---
 
-**First, read the 11 tasks from Step 2** by loading the workbook and reading cells C7:C17 from the `Step 2` tab.
+**First, read the 12 tasks from Step 2** by loading the workbook and reading cells C7:C18 from the `Step 2` tab.
 
 ---
 
@@ -60,6 +77,20 @@ You will receive:
 
 ---
 
+## Specificity Standard for Workbook Commentary
+
+Columns Q (source) and R (rationale) must be specific to each task — never copy-paste the same rationale across multiple rows.
+
+✅ **Good (col R)**: "Atom 5 dominates (0.35) because prior auth decisions follow explicit payer criteria — MCG guidelines, LCD policies — with bounded exceptions escalated to MD. Atom 8 is high (0.25) because staff spend significant time on hold with payers and in real-time verbal negotiations. Atom 9 (0.20) reflects multi-day tracking of pending authorizations across payers."
+
+❌ **Bad (col R)**: "This task involves multiple workflow atoms as is typical for healthcare administrative processes."
+
+❌ **Bad (col R)**: "Allocations reflect the operational nature of the task and the roles involved."
+
+Each rationale must explain: *why* each non-zero atom applies, *why* the dominant atom dominates over others, and any subsegment-specific nuance (e.g., "in vein & vascular specifically, pre-procedure auth is more complex than typical outpatient because of high denial rates for elective procedures").
+
+---
+
 ## Allocation Principles
 
 1. **Most tasks are dominated by 1–2 atoms** but have meaningful residual time in others — allocate realistically
@@ -68,6 +99,7 @@ You will receive:
 4. **Physical atoms (N and O)**: only non-zero for tasks with genuine hands-on work. Set both to 0 for purely administrative/digital tasks
 5. **Atom 6 (authority-bearing judgment)**: be conservative. Most "decisions" in healthcare workflows are actually structured triage (Atom 5) unless they genuinely involve ambiguous high-stakes judgment with no rule set
 6. **Atom 9 (orchestration)**: is present whenever a task involves tracking state across a multi-step process, following up, or managing handoffs — even if it's a minor component
+7. **Atoms 11 vs. 12 (structured vs. unstructured physical) — default to Atom 12 for patient-facing tasks**: Patient bodies are unique — anatomy varies, presentations vary, tissue response varies, tolerance varies. Even "routine" clinical procedures (venipuncture, catheter placement, wound care, physical exam, vascular access, ultrasound-guided procedures) require continuous real-time adaptation to the individual in front of you. **If a human patient is physically present and being touched, lean Atom 12 (unstructured) unless there is a specific reason the task is truly invariant across patients.** Reserve Atom 11 (structured/predictable) for genuinely equipment-only or environment-controlled physical tasks where human variability is removed — e.g., operating an imaging scanner from a controlled booth, running a centrifuge, processing a lab specimen, equipment sterilization. The fact that a clinic has a standard protocol does not make the physical execution structured — protocols govern the sequence, not the variability of the human body the clinician is working on.
 
 ### Common healthcare task archetypes:
 
@@ -79,7 +111,7 @@ You will receive:
 
 **Prior authorization**: heavy Atom 1 (retrieval), Atom 5 (structured triage), Atom 8 (stakeholder interaction), Atom 9 (orchestration)
 
-**Direct patient care / clinical procedures**: heavy Atom 6 (judgment), Atoms N or O (physical), Atom 8 (stakeholder), Atom 7 (documentation)
+**Direct patient care / clinical procedures**: heavy Atom 6 (judgment), **Atom 12/O (unstructured physical) — default for any hands-on patient work**, Atom 8 (stakeholder), Atom 7 (documentation). Use Atom 11/N only if the physical task is genuinely equipment-only with no patient body variability (e.g., scanner operation from a booth). When in doubt between 11 and 12 for patient-contact tasks, choose 12.
 
 **Quality / compliance**: heavy Atom 10 (assurance), Atom 4 (deterministic), Atom 7 (drafting)
 
@@ -94,9 +126,15 @@ Before mapping atoms, pull targeted O*NET v2 data for the primary SOC codes in t
 **Auth**: `X-API-Key: ${user_config.onet_api_key}` header | **Base URL**: `https://api-v2.onetcenter.org`
 
 ```python
-import urllib.request, json
+import urllib.request, json, os
 
+# Key resolution — try user_config first, fall back to shipped config file
 ONET_KEY = "${user_config.onet_api_key}"
+if not ONET_KEY or ONET_KEY.startswith("${") or ONET_KEY == "onet_api_key":
+    config_path = os.path.expandvars("${CLAUDE_PLUGIN_ROOT}/data/api_keys.json")
+    with open(config_path) as f:
+        ONET_KEY = json.load(f)["onet_api_key"]
+
 BASE = "https://api-v2.onetcenter.org"
 
 def onet_get(path):
@@ -130,11 +168,28 @@ If a task has **zero** relevant physical work_context indicators, set Atoms 11 a
 
 ## Writing to the Workbook
 
+### ⚠️ PROTECTED CELLS — READ THIS BEFORE TOUCHING THE WORKBOOK
+
+**Column B is the Entry # column — NEVER write to it.** B7:B18 on the Step 3 tab contain auto-numbered row labels.
+
+The **only** cells you may write to on this step are:
+- `Step 3` tab: **D7:O18** (12 atom allocations per task), **Q7:Q18** (source), **R7:R18** (rationale)
+- Column P (P7:P18) is a formula that auto-calculates the row sum check — do NOT write to it
+
+The atom columns start at **D**, not B or C. If your code references column B or C for atom values, it is wrong.
+
 Read tasks first:
 ```python
-import openpyxl
-wb = openpyxl.load_workbook(workbook_path)
-tasks = [wb['Step 2'][f'C{r}'].value for r in range(7, 18)]
+import openpyxl, sys
+
+try:
+    wb = openpyxl.load_workbook(workbook_path)
+except FileNotFoundError:
+    print(f"ERROR: Workbook not found at {workbook_path}"); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Cannot open workbook: {e}"); sys.exit(1)
+
+tasks = [wb['Step 2'][f'C{r}'].value for r in range(7, 19)]
 ```
 
 Reason through each task's allocation, then write:
@@ -148,7 +203,7 @@ ws3 = wb['Step 3']
 allocations = [
     # task 1: [atom1, atom2, ..., atom12]
     [0.10, 0.05, 0.05, 0.00, 0.35, 0.05, 0.05, 0.20, 0.10, 0.05, 0.00, 0.00],
-    # ... 10 more rows
+    # ... 11 more rows (12 total)
 ]
 
 atom_cols = list('DEFGHIJKLMNO')  # columns D through O
@@ -161,10 +216,15 @@ for i, alloc in enumerate(allocations):
     ws3[f'Q{row}'] = "source string"
     ws3[f'R{row}'] = "rationale string"
 
-wb.save(workbook_path)
+try:
+    wb.save(workbook_path)
+except PermissionError:
+    print(f"ERROR: Cannot write to {workbook_path} — file may be open in Excel. Close it and retry."); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Failed to save workbook: {e}"); sys.exit(1)
 ```
 
-**After saving, run recalc.py and read back column P (C7:C17) to verify all rows show "pass".**
+**After saving, run recalc.py and read back column P (C7:C18) to verify all rows show "pass".**
 
 If any row shows "fail", diagnose the discrepancy (floating point rounding is the most common cause), adjust the largest allocation by the rounding delta, and re-save.
 
@@ -172,8 +232,8 @@ If any row shows "fail", diagnose the discrepancy (floating point rounding is th
 
 ## After Writing
 
-1. Run recalc.py and read back all P column values — confirm all 11 = "pass"
+1. Run recalc.py and read back all P column values — confirm all 12 = "pass"
 2. Report back to the coordinator with:
    - A compact table: task name | primary atom(s) | allocation summary
    - Any tasks where the allocation was ambiguous or where you had to make a non-obvious judgment — flag these for analyst review
-   - Confirmation that all 11 rows passed the sum check
+   - Confirmation that all 12 rows passed the sum check

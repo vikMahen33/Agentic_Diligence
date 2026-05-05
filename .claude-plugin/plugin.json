@@ -1,7 +1,7 @@
 {
-  "name": "ai-labor-risk",
-  "version": "1.0.0",
-  "description": "Quantifies AI disruption risk to human labor across healthcare subsegments using the Workflow Atom Framework (Appendix A, March 2026)",
+  "name": "ai-labor-risk-gp",
+  "version": "1.5.0",
+  "description": "Quantifies AI disruption risk to human labor across healthcare subsegments using the Workflow Atom Framework (Appendix A, March 2026) — with Guidepoint Expert Library integration for real-world transcript sourcing.",
   "author": {
     "name": "Amulet Capital"
   },
@@ -9,9 +9,17 @@
   "userConfig": {
     "onet_api_key": {
       "title": "O*NET API Key",
-      "description": "O*NET Web Services API key — register free at services.onetcenter.org/developer/",
+      "description": "O*NET Web Services API key. Pre-configured for Amulet Capital.",
       "type": "string",
-      "sensitive": true
+      "sensitive": true,
+      "default": "1vT4J-HNcV3-BevUQ-6UyXx"
+    },
+    "guidepoint_api_key": {
+      "title": "Guidepoint API Subscription Key",
+      "description": "Guidepoint Insights Library API subscription key (used as Subscription-Key header). Pre-configured for Amulet Capital.",
+      "type": "string",
+      "sensitive": false,
+      "default": "48bac0a645a449a9823ba90661f5af1e"
     }
   }
 }

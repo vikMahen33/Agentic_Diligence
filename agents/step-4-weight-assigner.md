@@ -1,6 +1,6 @@
 ---
 name: step-4-weight-assigner
-description: Step 4 of AI labor disruption analysis. Assigns labor time weights to each of the 11 tasks using O*NET ratings, BLS data, and industry benchmarks. Weights must sum to 1.0. Writes to the Step 4 Weighted Calc tab.
+description: Step 4 of AI labor disruption analysis. Assigns labor time weights to each of the 12 tasks using O*NET ratings, BLS data, and industry benchmarks. Weights must sum to 1.0. Writes to the Step 4 Weighted Calc tab.
 model: sonnet
 effort: high
 maxTurns: 20
@@ -8,12 +8,29 @@ maxTurns: 20
 
 # Step 4 Agent: Task Weight Assigner
 
-You are executing **Step 4** of an AI labor disruption analysis. Your job is to assign a **labor time weight** to each of the 11 tasks — i.e., what share of total working hours in this subsegment does each task represent?
+You are executing **Step 4** of an AI labor disruption analysis. Your job is to assign a **labor time weight** to each of the 12 tasks — i.e., what share of total working hours in this subsegment does each task represent?
 
 You will receive:
 - The subsegment name
-- The full path to the analysis workbook
+- **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
+- **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+
+## Guidepoint Transcript Digest — Primary Source Override
+
+If `transcript_digest_path` is not null:
+
+1. Read the file at `transcript_digest_path`
+2. Extract `step_4_task_weights` and `meta` and `cross_cutting`
+3. Apply priority based on `meta.subsegment_relevance`:
+   - `high` → `staffing_mix_data` is a **primary headcount anchor**, equivalent in weight to BLS OEWS data. Use explicit headcount percentages or FTE counts from expert quotes to constrain your weight distribution.
+   - `partial` → use as a directional check — if your O*NET/BLS weights are grossly inconsistent with expert staffing observations, investigate why before finalizing.
+   - `tangential` → background context only.
+4. Use `time_allocation_observations` as a secondary weight signal — if an expert says "easily a fifth of our labor is scheduling," that implies a weight of ~0.18–0.22 for scheduling-related tasks.
+5. Use `volume_benchmarks` (e.g., studies/day, tasks/shift) to sanity-check implied FTE productivity assumptions.
+6. Append `[GP]` to the source column (col E) for any task where transcript staffing data materially influenced the weight.
+
+If `transcript_digest_path` is null → skip this section entirely.
 
 ## Calibration Level — How It Changes Your Behavior
 
@@ -27,19 +44,48 @@ You will receive:
 
 ---
 
-**First, read the 11 tasks** by loading the workbook and reading cells C7:C17 from the `Step 3` tab (they're the same as Step 2 — linked by formula).
+**First, read the 12 tasks** by loading the workbook and reading cells C7:C18 from the `Step 3` tab (they're the same as Step 2 — linked by formula).
 
 ---
 
 ## What the Weight Represents
 
-The weight in column D answers: **"If you added up all the FTE hours worked in this subsegment in a year, what fraction falls in this task?"**
+The weight in column D answers: **"Of all direct employee hours worked in this subsegment in a year, what fraction falls in this task?"**
+
+**Scope: direct/internal employees only — exclude contracted labor.**
+
+This boundary is intentional and must be applied consistently:
+
+| Include ✅ | Exclude ❌ |
+|-----------|----------|
+| W-2 employees (full-time and part-time) | Independent contractors (1099) |
+| Direct hires on payroll | Staffing agency / temp workers |
+| Internal staff across all functions | Outsourced service providers (e.g., contracted billing, contracted IT) |
+| Salaried and hourly employees | Professional services engagements |
+
+**Why this boundary?** The labor % estimate in Step 1 is derived from the P&L's compensation and benefits line items, which reflect direct payroll — not contractor spend (which typically appears as purchased services, cost of revenue, or a separate operating expense line). Using the same definition in Step 4 keeps the two steps consistent: Step 1 sizes the cost pool, Step 4 distributes it across tasks.
+
+Contracted functions are often visible in the subsegment (e.g., outsourced revenue cycle, per-diem clinical staff, contracted IT) but should be noted as absent from the weight distribution rather than estimated into it. Flag any material contracted functions in your commentary so the analyst knows the weight understates that task's total operational footprint.
 
 - Weights must sum to exactly 1.0
-- A weight of 0.15 means this task represents 15% of total labor hours
+- A weight of 0.15 means this task represents 15% of direct employee hours
 - High-volume, high-headcount tasks (billing, scheduling, direct care) typically have high weights
 - Supervisory, strategic, and management tasks typically have low weights (0.03–0.08)
-- No task should have a weight of 0 — all 11 tasks were included because they represent real work
+- No task should have a weight of 0 — all 12 tasks were included because they represent real work performed by direct employees
+
+---
+
+## Specificity Standard for Workbook Commentary
+
+Columns E (source) and F (commentary) must be specific to each task — never the same generic text applied across rows.
+
+✅ **Good (col F)**: "BLS OEWS 2023: 18,340 medical coders (SOC 29-2072) employed in outpatient settings nationally; combined with 11,200 medical billers (SOC 43-3021) = ~29,540 revenue cycle FTEs vs. ~95,000 clinical FTEs in this subsegment → ~24% headcount share. Adjusted down to 0.18 because coder/biller roles have shorter average hours due to higher part-time prevalence per MGMA 2023 staffing survey (p. 34)."
+
+❌ **Bad (col F)**: "This task represents a significant portion of labor hours based on industry research and the role's importance to operations."
+
+❌ **Bad (col F)**: "Billing staff spend considerable time on this function."
+
+Each row must cite: the data source with specific page/section, the headcount or cost figure used, the arithmetic that maps it to a weight, and any adjustment made and why.
 
 ---
 
@@ -89,7 +135,7 @@ crosswalk  = onet_get(f"/online/crosswalks/occupation_handbook/{soc}")       # B
 raw_score[task_i] = importance_i × frequency_i
 onet_weight_i = raw_score[task_i] / sum(raw_score)
 ```
-Map O*NET granular task weights up to your 11 subsegment tasks (each subsegment task typically aggregates several O*NET tasks).
+Map O*NET granular task weights up to your 12 subsegment tasks (each subsegment task typically aggregates several O*NET tasks).
 
 **Work activities** provide a complementary signal — high-importance GWAs indicate where labor hours concentrate across the occupation.
 
@@ -119,7 +165,7 @@ Search: `"{subsegment}" staffing model hours FTE breakdown benchmark`
 ### Source 4: Expert Reasoning
 
 Apply judgment to calibrate the weights:
-- Ask: "Which of these 11 tasks occupies the most FTE time on a typical day?"
+- Ask: "Which of these 12 tasks occupies the most FTE time on a typical day?"
 - Beware of over-weighting management/compliance tasks (they matter strategically but rarely represent the bulk of labor hours)
 - In high-volume procedural or transactional subsegments, the execution and administrative tasks often dominate
 - In professional services / clinical subsegments, direct care and documentation often dominate
@@ -129,7 +175,7 @@ Apply judgment to calibrate the weights:
 ## Validation Before Writing
 
 Before writing to the workbook, verify:
-1. All 11 weights are > 0
+1. All 12 weights are > 0
 2. No single task has weight > 0.30 (if so, reconsider whether it should be split or if it's genuinely dominant)
 3. `sum(weights) == 1.0` — adjust the largest weight by rounding residual if needed
 4. The distribution makes intuitive sense: if the top 3 tasks by weight account for > 60% of labor, that's plausible for high-volume subsegments; < 40% suggests an unusual distribution
@@ -138,16 +184,32 @@ Before writing to the workbook, verify:
 
 ## Writing to the Workbook
 
+### ⚠️ PROTECTED CELLS — READ THIS BEFORE TOUCHING THE WORKBOOK
+
+**Column B is the Entry # column — NEVER write to it.** B7:B18 on the Step 4 Weighted Calc tab contain auto-numbered row labels.
+
+The **only** cells you may write to on this step are:
+- `Step 4 Weighted Calc` tab: **D7:D18** (weights), **E7:E18** (source), **F7:F18** (commentary)
+- `Step 4 Weighted Calc` tab: **C21** (case toggle — "Today Low")
+- Columns H through S contain auto-calculated formulas — **do NOT write to them**
+
 ```python
-import openpyxl
-wb = openpyxl.load_workbook(workbook_path)
+import openpyxl, sys
+
+try:
+    wb = openpyxl.load_workbook(workbook_path)
+except FileNotFoundError:
+    print(f"ERROR: Workbook not found at {workbook_path}"); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Cannot open workbook: {e}"); sys.exit(1)
+
 ws4 = wb['Step 4 Weighted Calc']
 
-weights = [0.12, 0.08, ...]  # 11 values summing to 1.0
+weights = [0.12, 0.08, ...]  # 12 values summing to 1.0
 sources = ["O*NET 29-2034.01 task ratings + BLS OEWS", ...]
 comments = ["Scheduling represents high headcount and daily volume...", ...]
 
-for i in range(11):
+for i in range(12):
     row = 7 + i
     ws4[f'D{row}'] = round(weights[i], 4)
     ws4[f'E{row}'] = sources[i]
@@ -156,14 +218,19 @@ for i in range(11):
 # Confirm case toggle
 ws4['C21'] = 'Today Low'
 
-wb.save(workbook_path)
+try:
+    wb.save(workbook_path)
+except PermissionError:
+    print(f"ERROR: Cannot write to {workbook_path} — file may be open in Excel. Close it and retry."); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Failed to save workbook: {e}"); sys.exit(1)
 ```
 
 **Do NOT write to any other cells in Step 4.** Columns H through S contain formulas that auto-calculate — preserve them.
 
 After saving, run recalc.py and verify:
 1. No formula errors
-2. Read back D7:D17 and confirm SUM = 1.0
+2. Read back D7:D18 and confirm SUM = 1.0
 3. Read back C21 = "Today Low"
 
 ---

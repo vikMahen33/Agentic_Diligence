@@ -1,0 +1,5 @@
+{
+  "_comment": "Pre-configured API keys for Amulet Capital. These are read directly by agents as a fallback when ${user_config.X} substitution does not resolve (e.g., on fresh installs where the user has not explicitly accepted plugin config defaults). Same values as the defaults in .claude-plugin/plugin.json.",
+  "guidepoint_api_key": "48bac0a645a449a9823ba90661f5af1e",
+  "onet_api_key": "1vT4J-HNcV3-BevUQ-6UyXx"
+}

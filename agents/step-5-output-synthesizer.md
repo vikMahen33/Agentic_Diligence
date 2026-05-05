@@ -15,8 +15,25 @@ You are executing **Step 5** — the final step — of an AI labor disruption an
 
 You will receive:
 - The subsegment name
-- The full path to the analysis workbook
+- **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
+- **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+
+## Guidepoint Transcript Digest — Primary Source Override
+
+If `transcript_digest_path` is not null:
+
+1. Read the file at `transcript_digest_path`
+2. Extract `step_5_synthesis`, `cross_cutting`, and `meta`
+3. Apply priority based on `meta.subsegment_relevance`:
+   - `high` → `automation_skepticism` and `automation_enthusiasm` entries are **primary citations** for your rationale text. An operator saying "the radiologist still has to sign everything" is direct evidence of a liability-driven automation floor — cite it explicitly.
+   - `partial` → use as supporting narrative; acknowledge the adjacent-subsegment context.
+   - `tangential` → use only if the observation is uniquely specific and not available from Appendix A or public research.
+4. Where `cross_cutting.key_tensions` documents expert disagreement, surface this as stated uncertainty in the relevant task rationale. Do not average conflicting expert views — name the tension.
+5. Use verbatim quotes from `cross_cutting.quotes_for_workbook` where `step_use = "step_5"` in rationale cells (col G). Append `[GP]` to the source column (col H) for any task where transcript synthesis views informed the rationale.
+6. `barriers_mentioned` and `regulatory_context` should be woven into rationale sentences where relevant — these are the subsegment-specific modifiers that distinguish a generic atom ceiling from a grounded estimate.
+
+If `transcript_digest_path` is null → skip this section entirely.
 
 ## Calibration Level — How It Changes Your Rationale Writing
 
@@ -39,21 +56,21 @@ import openpyxl
 wb = openpyxl.load_workbook(workbook_path, data_only=True)
 
 # Tasks (from Step 2)
-tasks = [wb['Step 2'][f'C{r}'].value for r in range(7, 18)]
+tasks = [wb['Step 2'][f'C{r}'].value for r in range(7, 19)]
 
 # Weights (from Step 4)
-weights = [wb['Step 4 Weighted Calc'][f'D{r}'].value for r in range(7, 18)]
+weights = [wb['Step 4 Weighted Calc'][f'D{r}'].value for r in range(7, 19)]
 
 # Atom allocations (from Step 3)
 atom_allocs = []
 atom_cols = 'DEFGHIJKLMNO'
-for r in range(7, 18):
+for r in range(7, 19):
     row_alloc = [wb['Step 3'][f'{c}{r}'].value for c in atom_cols]
     atom_allocs.append(row_alloc)
 
 # Final Output calculated values
-final_pct_today = [wb['Final Output'][f'D{r}'].value for r in range(7, 18)]
-final_pct_case  = [wb['Final Output'][f'E{r}'].value for r in range(7, 18)]
+final_pct_today = [wb['Final Output'][f'D{r}'].value for r in range(7, 19)]
+final_pct_case  = [wb['Final Output'][f'E{r}'].value for r in range(7, 19)]
 
 # Summary rows
 hours_today = wb['Final Output']['D25'].value   # 100
@@ -61,7 +78,7 @@ hours_at_case = wb['Final Output']['D26'].value
 hours_automated = wb['Final Output']['D27'].value
 
 # Step 3 atom comments (for context)
-atom_rationales = [wb['Step 3'][f'R{r}'].value for r in range(7, 18)]
+atom_rationales = [wb['Step 3'][f'R{r}'].value for r in range(7, 19)]
 ```
 
 Also read the Appendix A ceiling ranges for reference:
@@ -101,7 +118,7 @@ Verify that:
 Verify that the top 3 tasks by weight (D column) have rational automation levels relative to their atom allocations.
 
 ### Check 4 — No null values
-Confirm all 11 E column values are numeric (not None or error). If any are null, note which rows and why (likely a formula dependency issue).
+Confirm all 12 E column values are numeric (not None or error). If any are null, note which rows and why (likely a formula dependency issue).
 
 **Report the logic check outcome before writing rationales.** If there are material flags, call them out explicitly. The rationale should acknowledge any flags in the relevant task's commentary.
 
@@ -109,7 +126,7 @@ Confirm all 11 E column values are numeric (not None or error). If any are null,
 
 ## Step C: Write Rationales
 
-For each of the 11 tasks, write a 2–3 sentence rationale in the **Final Output tab, column G** (G7:G17), and the primary source in **column H** (H7:H17).
+For each of the 12 tasks, write a 2–3 sentence rationale in the **Final Output tab, column G** (G7:G18), and the primary source in **column H** (H7:H18).
 
 ### Rationale Formula (apply to every task)
 
@@ -130,6 +147,18 @@ A strong rationale answers three things:
    - Be concrete: what specifically would AI/automation do, and what would remain human?
    - e.g., "...AI agents can automate eligibility queries and populate authorization forms, but human follow-up on payer denials and exception handling preserves a meaningful oversight residue."
 
+### Specificity Standard — Non-Negotiable
+
+Every rationale (G7:G18) must be specific to this subsegment and this task. Do not copy-paste the same sentence structure across rows with only the task name swapped.
+
+✅ **Good**: "Prior authorization in vascular surgery is dominated by structured triage (Atom 5, 40–70% ceiling today) because payer decisions follow explicit MCG/InterQual criteria, and by orchestration (Atom 9, 15–40%) because authorizations span 3–7 days with multiple payer touchpoints. AI can automate eligibility queries and criteria matching, but denial management and peer-to-peer review with medical directors preserves a meaningful human residue — automation ceiling lands at the lower half of the range given the high denial complexity in vascular procedures."
+
+❌ **Bad**: "This task involves structured decision-making and workflow management, which have moderate automation ceilings based on the Appendix A atom framework."
+
+❌ **Bad**: "Automation can assist with parts of this process, but human oversight remains important for compliance and quality reasons."
+
+Each rationale must be unique to its task — name the dominant atoms, cite the ceiling range, name what automation concretely does and what remains human, and apply at least one subsegment-specific modifier.
+
 ### Tone and Style
 
 - Write as a senior analyst presenting to a deal partner — confident and specific
@@ -149,19 +178,40 @@ For each row, cite the primary sources that most informed the atom allocation an
 
 ## Step D: Write to Workbook
 
+### ⚠️ PROTECTED CELLS — READ THIS BEFORE TOUCHING THE WORKBOOK
+
+**Column B is the Entry # column — NEVER write to it.** B7:B18 on the Final Output tab contain auto-numbered row labels.
+
+The **only** cells you may write to on this step are:
+- `Final Output` tab: **G7:G18** (synthesized rationale), **H7:H18** (source citations)
+- Columns D and E are auto-calculated from prior steps — **do NOT write to them**
+
 ```python
-wb2 = openpyxl.load_workbook(workbook_path)  # reload fresh (not data_only)
+import sys
+
+try:
+    wb2 = openpyxl.load_workbook(workbook_path)  # reload fresh (not data_only)
+except FileNotFoundError:
+    print(f"ERROR: Workbook not found at {workbook_path}"); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Cannot open workbook: {e}"); sys.exit(1)
+
 wf = wb2['Final Output']
 
-rationales = ["...", ...]  # 11 strings
-sources    = ["...", ...]  # 11 strings
+rationales = ["...", ...]  # 12 strings
+sources    = ["...", ...]  # 12 strings
 
-for i in range(11):
+for i in range(12):
     row = 7 + i
     wf[f'G{row}'] = rationales[i]
     wf[f'H{row}'] = sources[i]
 
-wb2.save(workbook_path)
+try:
+    wb2.save(workbook_path)
+except PermissionError:
+    print(f"ERROR: Cannot write to {workbook_path} — file may be open in Excel. Close it and retry."); sys.exit(1)
+except Exception as e:
+    print(f"ERROR: Failed to save workbook: {e}"); sys.exit(1)
 ```
 
 Run recalc.py and verify no errors.

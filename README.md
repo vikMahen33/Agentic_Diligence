@@ -11,7 +11,7 @@ Built for PE diligence workflows. Produces an auditable Excel workbook — one s
 Given a healthcare subsegment (e.g., "outpatient radiology", "late-stage small CROs"), the plugin:
 
 1. Estimates labor as % of total costs from SEC EDGAR, BLS, and CMS sources
-2. Defines 11 collectively exhaustive tasks covering 100% of labor in the subsegment
+2. Defines 12 MECE tasks covering 100% of labor in the subsegment
 3. Allocates each task across 12 workflow atoms (information retrieval → physical execution)
 4. Weights each task by share of total labor hours
 5. Synthesizes a final automation ceiling at Today Low, 2–3 year, and 5–10 year horizons
@@ -87,7 +87,7 @@ Runs an independent adversarial review of a completed step — surfaces hard err
 | Tab | Contents |
 |---|---|
 | Step 1 | Labor % estimate — 3 sources + triangulated average |
-| Step 2 | 11-task inventory — collectively exhaustive, mutually exclusive |
+| Step 2 | 12-task MECE inventory — collectively exhaustive, mutually exclusive |
 | Step 3 | Atom matrix — 12-column allocation, each row sums to 1.0 |
 | Step 4 Weighted Calc | Task labor time weights + auto-calculated remaining labor by atom |
 | Final Output | Automation ceiling per task + synthesized rationale |

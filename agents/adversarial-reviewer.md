@@ -15,8 +15,20 @@ Your job is to challenge the outputs of a specific step of an AI labor disruptio
 You will receive:
 - The step number to review (1, 2, 3, 4, or 5)
 - The full path to the analysis workbook
+- **transcript_digest_path** (optional): path to `transcript-digest.json` if Guidepoint was used. `null` if not.
 
 **You do NOT write to the workbook.** You only read and critique.
+
+---
+
+## Guidepoint Attribution Check
+
+If `transcript_digest_path` is not null, read the digest and check the relevant step section (`step_N_*`) alongside the workbook output:
+
+- **Missing usage**: If `meta.subsegment_relevance = high` and the digest's section for this step contains substantive data (non-empty arrays), but NO `[GP]` tags appear in the workbook's source cells for this step — flag it. The step agent had primary-source expert testimony available and didn't use it.
+- **Inconsistency**: If `[GP]` appears in a source cell, spot-check that the cited observation is directionally consistent with what the digest actually says. Flag if the workbook claim contradicts the expert quote.
+- **Override without explanation**: If a generic BLS range or model estimate is cited alongside (or instead of) a direct expert quote giving a different number, flag it — the expert quote should win unless there's a stated reason in the commentary.
+- **Key tensions surfaced**: If `cross_cutting.key_tensions` documents expert disagreement, check whether Step 5 rationales acknowledge this uncertainty. If not, flag as a blind spot.
 
 ---
 
@@ -61,26 +73,80 @@ Challenge checklist:
 
 ### Reviewing Step 2 (Task Inventory)
 
-Read: `Step 2` tab — cells C7:E17 (11 tasks, sources, comments)
+Read: `Step 2` tab — cells C7:E18 (12 tasks, sources, comments)
 
-Challenge checklist:
-- [ ] Are all 11 tasks genuinely distinct? Could any two be merged without losing analytical value?
-- [ ] Does the list cover the full value chain? Check for gaps:
-  - Front-office / access management
-  - Clinical delivery / direct patient care
-  - Clinical documentation
-  - Billing / coding / revenue cycle
-  - Prior authorization / utilization management
-  - Compliance / quality / accreditation
-  - Management / supervision
+**This step has the highest failure rate. Apply extra scrutiny. The list must be genuinely MECE — not just claimed to be.**
+
+#### Part A — Organizing Principle Consistency (check first)
+
+Before testing overlaps, identify what organizing principle the task list actually used:
+- **Function**: tasks = distinct work types (scheduling, coding, clinical care, compliance…)
+- **Value chain phase**: tasks = temporal stages (pre-visit, visit, post-visit, billing…)
+- **Role cluster**: tasks = role archetypes (clinicians, admin, revenue cycle, management…)
+
+- [ ] Is a **single** organizing principle used consistently across all 12 tasks?
+- [ ] If the principle is mixed (e.g., some tasks by function, some by role, some by phase) — **flag this as a structural MECE failure**. A mixed taxonomy almost always produces overlaps because the same activity can satisfy tasks from different categories simultaneously.
+
+**Example of a mixed-taxonomy failure**: Task 1 = "Scheduling" (function), Task 4 = "Startup/activation phase" (phase), Task 7 = "Biostatisticians performing analysis" (role). This is unfixable with minor edits — the entire list needs to be rebuilt on a single principle.
+
+If mixed taxonomy is found: flag "STRUCTURAL FAILURE — task list must be rebuilt on a single organizing principle" and do not proceed with Parts B–D.
+
+#### Part B — Mutual Exclusivity (overlap test)
+
+For each task, ask: *"Is there any work described in another task that could also reasonably belong here?"* Focus on these known failure patterns:
+
+- [ ] **Documentation carved out**: Is there a "documentation" or "clinical documentation" task that overlaps with what the clinical care task already covers? Documentation is usually embedded in clinical work — a standalone documentation task is typically an overlap unless the subsegment has a dedicated HIM/transcription function.
+- [ ] **Patient communication double-counted**: Does a "patient communication" or "patient engagement" task overlap with scheduling (which inherently involves patient-facing interaction) or clinical care (which includes patient education)?
+- [ ] **Coordination as a pseudo-task**: Is there a "care coordination" or "case management" task that is really just describing handoffs between other tasks rather than a distinct body of work with dedicated FTEs?
+- [ ] **Billing vs. Coding blur**: If both are present as separate tasks, is the boundary real? In most outpatient settings, coders and billers are the same person or tightly coupled — splitting them is usually artificial.
+- [ ] **Management claiming QA time**: Do both the management/supervision task and the compliance/quality task describe attendance at QA meetings, policy review, or reporting? That's overlap.
+- [ ] **Any task where you can describe its work using the name of another task**: If you can say "Task A involves [Task B]", they overlap.
+
+For each overlap found: **flag it and state which task it should be collapsed into.**
+
+#### Part B — Collective Exhaustiveness (gap test)
+
+Map every major role type in this subsegment to a task. If a role has no clear home, there's a gap.
+
+- [ ] Scheduler / front-desk / patient access → Task ___
+- [ ] Primary clinical provider (physician, NP, therapist, technician, etc.) → Task ___
+- [ ] Clinical support / assistant / tech → Task ___
+- [ ] Coder / biller / revenue cycle → Task ___
+- [ ] Prior auth / utilization management staff → Task ___
+- [ ] Compliance / quality / accreditation → Task ___
+- [ ] Practice manager / director of operations → Task ___
+- [ ] Any subsegment-specific roles not listed above (identify them) → Task ___
+
+If any role is unmapped: **flag the gap.**
+
+#### Part C — Clinical Over-indexing Check
+
+- [ ] Count the number of tasks that are exclusively clinical/procedural in nature (involve only licensed clinical staff doing patient care). This number should be **≤ 4 out of 12**.
+- [ ] If >4 tasks are clinical, the list over-indexes on the product and under-captures the business operations that surround it. Flag and recommend consolidation.
+- [ ] Verify that revenue cycle, compliance, and management together account for **at least 3 tasks**.
+
+#### Part D — Standard checks
+
 - [ ] Are any tasks so broad they span multiple atoms (which would make Step 3 impossible to do accurately)?
 - [ ] Are the task names specific to this subsegment or are they generic healthcare boilerplate?
 - [ ] Do the sources actually support the task descriptions, or are sources vague/missing?
 - [ ] Is there a task that disproportionately represents a large amount of labor but is underspecified?
 
+**Required output format for Step 2 review:**
+```
+ORGANIZING PRINCIPLE: [Function / Phase / Role / Mixed — FAIL if Mixed]
+OVERLAP FINDINGS: [list overlaps or "None found"]
+GAP FINDINGS: [list gaps or "None found"]
+CLINICAL OVER-INDEX: [N clinical tasks out of 12 — pass/fail]
+OTHER FLAGS: [list or "None"]
+VERDICT: PASS / FAIL — [1 sentence summary]
+```
+
+If FAIL: list the specific restructuring needed before Step 3 can proceed. If the failure is mixed taxonomy, state clearly that the task list must be fully rebuilt — partial fixes will not achieve MECE.
+
 ### Reviewing Step 3 (Atom Matrix)
 
-Read: `Step 3` tab — D7:O17 (allocations), P7:P17 (checks), Q7:Q17 (sources), R7:R17 (rationales)
+Read: `Step 3` tab — D7:O18 (allocations), P7:P18 (checks), Q7:Q18 (sources), R7:R18 (rationales)
 
 Challenge checklist:
 - [ ] Do all rows show "pass" in column P? If any fail, flag as a hard error.
