@@ -46,12 +46,15 @@ ATOM_NAMES = [
 ]
 
 CEILINGS = {
-    "Today Low":  [0.40, 0.45, 0.25, 0.40, 0.40, 0.10, 0.40, 0.10, 0.15, 0.20, 0.45, 0.05],
-    "Today High": [0.65, 0.75, 0.55, 0.70, 0.70, 0.25, 0.70, 0.45, 0.40, 0.45, 0.75, 0.15],
-    "\u2013".join(["2", "3y Low"]):   [0.60, 0.65, 0.45, 0.55, 0.55, 0.20, 0.60, 0.20, 0.35, 0.30, 0.60, 0.10],
-    "\u2013".join(["2", "3y High"]):  [0.85, 0.90, 0.75, 0.85, 0.85, 0.45, 0.85, 0.60, 0.65, 0.60, 0.85, 0.25],
-    "\u2013".join(["5", "10y Low"]):  [0.75, 0.80, 0.60, 0.75, 0.70, 0.35, 0.75, 0.35, 0.55, 0.45, 0.75, 0.20],
-    "\u2013".join(["5", "10y High"]): [0.95, 0.97, 0.90, 0.95, 0.95, 0.65, 0.95, 0.80, 0.85, 0.75, 0.95, 0.45],
+    # v2 Section 10 \u2014 Asset-Light / Capex-Constrained view
+    # Atom 11 (structured physical) and Atom 12 (unstructured physical) collapse vs. v1.5.0
+    # because robotics/equipment deployment is excluded; software-only levers only
+    "Today Low":  [0.50, 0.55, 0.25, 0.45, 0.50, 0.10, 0.50, 0.15, 0.15, 0.20, 0.08, 0.03],
+    "Today High": [0.75, 0.80, 0.55, 0.70, 0.75, 0.30, 0.75, 0.35, 0.40, 0.45, 0.20, 0.10],
+    "\u2013".join(["2", "3y Low"]):   [0.65, 0.70, 0.45, 0.60, 0.65, 0.20, 0.65, 0.25, 0.30, 0.30, 0.12, 0.05],
+    "\u2013".join(["2", "3y High"]):  [0.90, 0.92, 0.75, 0.88, 0.90, 0.45, 0.88, 0.50, 0.60, 0.60, 0.25, 0.13],
+    "\u2013".join(["5", "10y Low"]):  [0.80, 0.85, 0.60, 0.75, 0.80, 0.30, 0.75, 0.35, 0.50, 0.45, 0.15, 0.07],
+    "\u2013".join(["5", "10y High"]): [0.95, 0.98, 0.90, 0.95, 0.95, 0.65, 0.95, 0.70, 0.85, 0.80, 0.30, 0.15],
 }
 
 # Fix the ceiling keys to use proper en-dash
@@ -632,7 +635,7 @@ def run_eval(original_path, benchmark_path, case="Today Low"):
     overall = compute_overall(step1_result, step3_result, step4_result, sensitivity_result)
 
     return {
-        "eval_version": "1.1",
+        "eval_version": "1.2",  # v2 Section 10 asset-light ceilings
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "subsegment": original.get("step_1", {}).get("subsegment", "Unknown"),
         "original_workbook": str(original_path),

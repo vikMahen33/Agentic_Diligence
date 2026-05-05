@@ -88,10 +88,16 @@ consistent with public sources underrepresenting back-office complexity in this 
 
 ## Impact Propagation
 
-Original D27 (hours automated):        XX.X
-D27 with benchmark atoms only:         XX.X  (atom delta: [+/-]X.X hrs)
-D27 with benchmark weights only:       XX.X  (weight delta: [+/-]X.X hrs)
-D27 with full benchmark (atoms+weights): XX.X  (total delta: [+/-]X.X hrs, [X]%)
+Original D27 (gross hours automated):     XX.X
+D27 with benchmark atoms only:            XX.X  (atom delta: [+/-]X.X hrs)
+D27 with benchmark weights only:          XX.X  (weight delta: [+/-]X.X hrs)
+D27 with full benchmark (atoms+weights):  XX.X  (total delta: [+/-]X.X hrs, [X]%)
+
+Original D28 (regulatory-adjusted):       XX.X  (avg haircut: X.X%)
+[Note: Step 6 regulatory haircut is an overlay layer applied to the original analysis;
+this eval framework does NOT benchmark the haircut itself against internal data because
+regulatory analysis has no internal-data analogue. The haircut value is reported here
+for context only — the eval's reliability score reflects only Steps 1, 3, and 4.]
 
 [2-3 sentences: Plain-language interpretation of the combined impact. Which source of
 error matters more — atoms or weights? "If internal data is correct, the automation

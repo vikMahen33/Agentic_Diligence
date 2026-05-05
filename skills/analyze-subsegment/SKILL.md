@@ -228,7 +228,19 @@ After agent returns: copy workbook to workspace, surface findings, pause for rev
 Delegate to `step-5-output-synthesizer`:
 - Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
 
-After agent returns: copy workbook to workspace, surface findings.
+After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
+
+### Step 6 — Regulatory Conservatism Haircut
+Delegate to `step-6-regulatory-haircut`:
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+
+The agent will discover concrete, in-force regulations that materially constrain projected automation savings for each of the 12 tasks, assign per-task haircut %, and the workbook will auto-calculate the regulatory-adjusted hours number on Final Output D28.
+
+After agent returns: copy workbook to workspace, surface findings:
+- Number of tasks with non-zero haircut
+- Top 3 most-haircut tasks with citations
+- Both numbers side by side (D27 gross / D28 reg-adjusted)
+- Average haircut applied (D29)
 
 ---
 
@@ -240,10 +252,15 @@ Analysis complete: [Subsegment Name]
 Calibration level used: [N]
 Guidepoint transcripts: [N used, [M] cells tagged [GP] / not used]
 
+Headline numbers:
+  Hours Automated Away (gross technical):     {D27}
+  Hours Automated Away (regulatory-adjusted): {D28}
+  Average regulatory haircut applied:         {D29}
+
 📁 Workbook: {workspace_dir}/{filename}
    (canonical: {workbook_path})
 
-To review any step independently: /ai-labor-risk:review-step [1-5] [workbook path]
+To review any step independently: /ai-labor-risk:review-step [1-6] [workbook path]
 To run the next subsegment: /ai-labor-risk:analyze-subsegment <subsegment name>
 ─────────────────────────────────────────────
 ```

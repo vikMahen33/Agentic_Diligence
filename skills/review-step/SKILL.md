@@ -1,6 +1,6 @@
 ---
 name: review-step
-description: "Adversarial review of any completed analysis step. Challenges conclusions, flags weak assumptions, and identifies blind spots. Usage: /ai-labor-risk:review-step [1-5] [workbook path]"
+description: "Adversarial review of any completed analysis step. Challenges conclusions, flags weak assumptions, and identifies blind spots. Usage: /ai-labor-risk:review-step [1-6] [workbook path]"
 ---
 
 # Adversarial Step Review
@@ -10,12 +10,12 @@ You are running an independent adversarial review of a completed analysis step.
 Arguments received: **$ARGUMENTS**
 
 Parse the arguments:
-- First token: step number (1, 2, 3, 4, or 5)
+- First token: step number (1, 2, 3, 4, 5, or 6)
 - Remaining: the workbook path
 
 **Validation**: If either argument is missing or invalid, respond:
 
-    Usage: /ai-labor-risk:review-step [1-5] [workbook path]
+    Usage: /ai-labor-risk:review-step [1-6] [workbook path]
     Example: /ai-labor-risk:review-step 3 /path/to/workbook.xlsx
 
 If valid, announce:

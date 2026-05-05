@@ -178,15 +178,40 @@ Challenge checklist:
 Read: `Final Output` tab — D7:H17 (weights, automation %, rationales, sources), D25:D27 (summary hours)
 
 Challenge checklist:
-- [ ] Is the total hours automated (D27) plausible for this subsegment at Today Low case? Expected range: 15–45 hours out of 100.
-  - < 10 hours: likely too conservative — check if Atom 6 was systematically over-allocated or weights concentrate in low-ceiling tasks
-  - > 55 hours: likely too aggressive for Today Low — check if automation-heavy atoms are over-represented
+- [ ] Is the total hours automated (D27) plausible for this subsegment at Today Low case under the **v1.6.0 capex-light view**? Expected ranges:
+  - Knowledge-work-heavy subsegments (RCM, coding, billing, prior auth services): 25–50 hours
+  - Mixed (outpatient clinics, ASCs, multispecialty groups): 12–28 hours
+  - Physical-execution-heavy (skilled nursing, home health, hospice, behavioral health residential): 5–15 hours
+  - **A high D27 for a physical-heavy subsegment is a red flag** — likely Atoms 11/12 were over-allocated; check if physical work was mis-coded as knowledge-work atoms
 - [ ] Do the per-task automation levels (E column) make intuitive sense relative to the tasks?
   - High-automation tasks: billing/coding, scheduling, documentation, eligibility checking
-  - Low-automation tasks: clinical judgment, patient communication, complex care coordination
+  - Low-automation tasks: clinical judgment, patient communication, complex care coordination, all bedside care
 - [ ] Are rationales (G column) specific to this subsegment or generic healthcare boilerplate?
+- [ ] **For physical-heavy tasks**: do rationales explicitly acknowledge the capex-light constraint as the binding ceiling (rather than implying robotics could close the gap)?
 - [ ] Do any rationales contradict the atom allocations or weights from prior steps? (Internal consistency check)
 - [ ] Are sources (H column) actually cited, or are they placeholders?
+
+### Reviewing Step 6 (Regulatory Haircut)
+
+Read: `Step 6 Regulatory` tab — D7:G18 (haircut %, regulation, impact, URL); `Final Output` D27, D28, D29 (gross / reg-adjusted / avg haircut)
+
+Challenge checklist:
+- [ ] **Citation quality** — Does each non-zero haircut row cite a **specific section number** (e.g., "45 CFR § 164.502(b)") rather than a generic regulation name (e.g., just "HIPAA")?
+- [ ] **URL validity** — Does each E/F/G row include an actual URL to the regulation text on `.gov` (ecfr.gov, federalregister.gov, fda.gov, cms.gov)? Reject vague URLs like "hhs.gov/hipaa" — must be the specific rule.
+- [ ] **Currently in force** — Is each cited regulation **enacted and effective today**? Reject any reference to proposed rules, comment periods, or "expected" legislation (unless calibration was 4 or 5).
+- [ ] **Specific impact** — Does the impact text (column F) explain how the regulation **specifically constrains autonomous AI execution** of THIS task — not just "applies generally"?
+- [ ] **Proportionality** — Is the haircut magnitude proportional to the cited constraint?
+  - 0.05–0.10: attestation-only (e.g., physician sign-off on AI note)
+  - 0.10–0.20: mandatory human review
+  - 0.20–0.30: autonomous execution prohibited for material parts
+  - >0.30 should be **rare** and explicitly justified
+- [ ] **Subsegment-specific gaps** — Are there **obvious missing regulations** for this subsegment?
+  - Behavioral health analysis with no 42 CFR Part 2 reference → flag
+  - Hospice/SNF analysis with no CMS Conditions of Participation reference → flag
+  - Telehealth analysis with no state telehealth statute references → flag
+  - Controlled substance prescribing tasks with no DEA reference → flag
+- [ ] **Magnitude check** — If average haircut (D29) is >25%, is this defensible? Most healthcare subsegments should land 5–20% average; >25% implies regulation is more constraining than capability, which is unusual.
+- [ ] **Zero haircuts** — For tasks with 0.00 haircut, is this defensible (no on-point regulation), or did the agent miss obvious rules? Particularly check clinical documentation, controlled substance handling, PHI routing.
 
 ---
 

@@ -128,13 +128,23 @@ Confirm all 12 E column values are numeric (not None or error). If any are null,
 
 For each of the 12 tasks, write a 2–3 sentence rationale in the **Final Output tab, column G** (G7:G18), and the primary source in **column H** (H7:H18).
 
+### Capex-Light Framing (v1.6.0) — Read Before Writing Rationales
+
+As of v1.6.0, Appendix A reflects a **capex-light view**: the ceilings assume only software-only AI levers on existing devices (handhelds, AI scribes, scheduling systems). Robotics, line equipment, and specialized actuators are explicitly OUT of scope. This means:
+
+- **Atom 11** (structured physical) ceiling today is **8–20%** (was 45–75% pre-v1.6.0)
+- **Atom 12** (unstructured physical) ceiling today is **3–10%** (was 5–15%)
+- Knowledge-work atoms (1, 2, 4, 5, 7) are slightly higher than pre-v1.6.0 due to expanded RCT evidence
+- For **physical-heavy subsegments** (skilled nursing, home health, ASCs), the rationale must explicitly acknowledge the capex-light constraint as the binding ceiling — e.g., "Even though wound care is the dominant clinical activity, the capex-light view caps Atom 12 at 3–10% today because no software lever can substitute for bedside hands. Higher ceilings would require deploying surgical robots, which is out of scope for the framework."
+- For **knowledge-work-heavy subsegments** (RCM, coding, billing), ceilings are largely intact — explain that these tasks are software-native and the capex-light constraint does not bind.
+
 ### Rationale Formula (apply to every task)
 
 A strong rationale answers three things:
 
 1. **What atom(s) dominate this task, and what does that mean for the ceiling?**
-   - Name the 1–2 dominant atoms and connect them to the Appendix A ceiling range
-   - e.g., "This task is dominated by structured triage (Atom 5, 40–70% ceiling today) and workflow orchestration (Atom 9, 15–40% ceiling today)..."
+   - Name the 1–2 dominant atoms and connect them to the Appendix A ceiling range (read the actual values from Appendix A — do NOT use cached values from older versions)
+   - e.g., "This task is dominated by structured triage (Atom 5, 50–75% ceiling today) and workflow orchestration (Atom 9, 15–40% ceiling today)..."
 
 2. **What is specific to THIS healthcare subsegment that moves the estimate up or down?**
    - Apply the material modifiers from Appendix A:
