@@ -15,6 +15,24 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials provided.
+
+## Internal Digest — Primary Source Override (highest priority for task weights)
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_4_task_weights` across all files — these are headcount/FTE breakdowns from prior comparable companies
+3. **This is the most valuable input for Step 4** — internal headcount data from prior deals is more direct evidence of FTE distribution than O*NET/BLS national averages.
+4. Method:
+   - Map each prior-deal headcount bucket onto the current 12 tasks (the digest's `interpretation` field already proposes a mapping; refine if needed)
+   - If 2+ prior deals have headcount data: average their task-weight distributions; weight more heavily if recent and same subsegment
+   - If 1 prior deal: use as primary anchor; cross-check against O*NET/BLS as sanity check
+5. **Direct W-2 employee scope still applies** — if a digest interpretation includes contractors, exclude them per Step 1/Step 4 scope rules. The analyst's confirmation in Phase 3 of the internal-library-agent should already have addressed this; re-verify in your reading.
+6. **Attribution**: in column E (source), append `[INT: {Source Company list}]` for any task row anchored by internal data
+7. **In column F (commentary)**: cite the specific prior-deal headcount figures and the arithmetic that produced the weight. Example: "Headcount weight derived from Project Falcon (FY23 CIM p.14): 28 of 222 direct FTE in scheduling/access = 12.6%; cross-validated against Project Heron (FY22 deck p.9): 14% — using 13.0% midpoint."
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ## Guidepoint Transcript Digest — Primary Source Override
 

@@ -53,9 +53,17 @@ Before launching any agent, ask the user the following two questions. Present th
 >
 > **No** — skip Guidepoint; use standard public sources only
 
+**Question D — Internal Materials Library**
+
+> Do you have a folder of internal past-deal materials you want to leverage in this analysis (CIMs, P&Ls, headcount data, IC memos, expert call notes from prior deals)?
+>
+> **Yes** [folder path] — I'll read every file in the folder, extract candidate anchors for each of the 6 steps, present my interpretations back to you for confirmation, and only after your sign-off use them as primary-source anchors for the analysis. Source company names are retained verbatim (full cross-deal fungibility).
+>
+> **No** — proceed with public sources (and Guidepoint if enabled) only
+
 ---
 
-Record the user's answers to all three questions. Pass calibration level and adversarial review setting to every subsequent agent invocation. Pass `transcript_digest_path` once it is set (Step 0.5).
+Record the user's answers to all four questions. Pass calibration level and adversarial review setting to every subsequent agent invocation. Pass `transcript_digest_path` once it is set (Step 1.5). Pass `internal_digest_path` once it is set (Step 1.6).
 
 ---
 
@@ -175,6 +183,34 @@ print(f\"entries:{len(entries)} last_synced:{c.get('last_synced','unknown')}\")
 
 ---
 
+## Step 1.6: Internal Materials Library [only if Question D = Yes]
+
+1. Validate the folder path the analyst provided in Question D:
+   ```bash
+   test -d "{folder_path}" && ls "{folder_path}" | head -20 || echo "FOLDER_NOT_FOUND"
+   ```
+   - If `FOLDER_NOT_FOUND`: ask the analyst to re-confirm the path. Do NOT skip silently.
+
+2. Invoke `internal-library-agent` with:
+   - `subsegment_name`
+   - `folder_path` (verbatim from analyst)
+   - `analysis_dir`: `${CLAUDE_PLUGIN_DATA}/analyses/{slug}/`
+   - `calibration_level` (from Question A)
+
+3. **The agent will pause for analyst confirmation** before writing the digest. This is by design — PE materials use idiosyncratic framing and the analyst must sign off on interpretations. Surface the agent's review document directly to the analyst, including all per-file anchor interpretations, and pass the analyst's response back to the agent verbatim.
+
+4. **Do not proceed to Step 2** until the agent reports the digest has been written.
+
+5. If digest is written:
+   - Set `internal_digest_path = ${CLAUDE_PLUGIN_DATA}/analyses/{slug}/internal-digest.json`
+   - The agent will have printed an anchor-count summary by step.
+
+6. If the agent reports "No files found" or "All files irrelevant":
+   - Set `internal_digest_path = null`
+   - Continue to Step 2 noting in the run record that internal data was unavailable
+
+---
+
 ## Step Sequence
 
 Work through the following steps. After each step (unless --auto), present the summary and ask: **"Review the workbook and let me know when to proceed to Step [N+1], or share any edits first."**
@@ -202,37 +238,37 @@ If the copy fails (e.g., permissions), note it but do not stop the analysis — 
 
 ### Step 1 — Labor % Estimate
 Delegate to `step-1-labor-estimator`:
-- Subsegment name, **workbook_path** (exact full path from Step 1 Setup), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (exact full path from Step 1 Setup), calibration level, transcript_digest_path, internal_digest_path
 
 After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
 
 ### Step 2 — Task Inventory
 Delegate to `step-2-task-inventor`:
-- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path, internal_digest_path
 
 After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
 
 ### Step 3 — Atom Matrix Mapping
 Delegate to `step-3-atom-mapper`:
-- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path, internal_digest_path
 
 After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
 
 ### Step 4 — Task Weighting
 Delegate to `step-4-weight-assigner`:
-- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path, internal_digest_path
 
 After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
 
 ### Step 5 — Final Output & Synthesis
 Delegate to `step-5-output-synthesizer`:
-- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path, internal_digest_path
 
 After agent returns: copy workbook to workspace, surface findings, pause for review (unless --auto).
 
 ### Step 6 — Regulatory Conservatism Haircut
 Delegate to `step-6-regulatory-haircut`:
-- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path
+- Subsegment name, **workbook_path** (same canonical path), calibration level, transcript_digest_path, internal_digest_path
 
 The agent will discover concrete, in-force regulations that materially constrain projected automation savings for each of the 12 tasks, assign per-task haircut %, and the workbook will auto-calculate the regulatory-adjusted hours number on Final Output D28.
 

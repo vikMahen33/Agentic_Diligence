@@ -17,6 +17,22 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials provided.
+
+## Internal Digest — Research Starting Point ONLY (NOT a citation source)
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_6_regulatory_signals` across all files — these are mentions of regulatory friction that prior IC memos / CIMs surfaced
+3. **CRITICAL**: prior-deal regulatory mentions DO NOT satisfy Step 6's evidentiary bar. The bar is a currently-in-force CFR/USC/state-statute citation with URL. A prior IC memo saying "CMS denial rates are climbing" is a HINT to investigate CMS billing rules, but you must independently find and cite the actual regulation.
+4. Use internal regulatory signals as a **research starting list**:
+   - Build your `WebSearch` queries informed by the prior-deal flags (e.g., if Falcon's IC mentioned CMS denial rates for vascular, search for CMS Coverage Determinations on vascular procedures)
+   - This narrows your research to the regulations that ACTUALLY bind in this subsegment, vs. searching every possible regulation generically
+5. **DO NOT cite the internal digest itself** in the workbook's E (regulation cited) or G (URL) columns — those must always reference the actual federal/state regulation. The internal anchor only seeds your search.
+6. **OPTIONAL**: in column F (specific impact), you may note "consistent with Project Falcon (Mar 2024 IC) which flagged the same constraint" AFTER the citation-based primary impact text — but the regulation citation in column E and URL in column G must always be the real CFR/USC reference.
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ---
 

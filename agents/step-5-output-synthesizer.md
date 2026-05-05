@@ -18,6 +18,24 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials provided.
+
+## Internal Digest — Primary Source Override (firm prior view)
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_5_prior_view` across all files — these are quotes/extractions from prior IC memos, IOI memos, and underwriting docs that capture the firm's analyzed view on labor/automation/competitive dynamics in this subsegment
+3. **Internal anchors are the most valuable input for Step 5** because they capture the firm's accumulated investment thesis on this space — not just generalized industry observations
+4. Use internal anchors to:
+   - **Validate** the synthesized rationale against prior firm conclusions (consistency check — if your rationale contradicts prior firm view, flag and reconcile)
+   - **Add subsegment-specific color** that public sources lack (e.g., "Project Falcon's IC noted that vascular RCM has 35% billing turnover historically — this supports lower-end ceilings for Atom 2/4")
+   - **Cite firm precedent** in rationale text: "consistent with the firm's view on Project Falcon (Mar 2024 IC memo) that..."
+5. If `analyst_context` field is populated, weave it into rationales where relevant
+6. **Attribution**: in column I (sources) for any task row whose rationale was informed by internal anchors, append `[INT: {Source Company} {doc type}, {date}]`
+7. **In column H (rationale)**: explicit prior-firm-view citations should appear inline. Example: "...consistent with the firm's prior view on Project Heron (Aug 2023 IC memo) that vascular procedure scheduling lacks meaningful automation potential due to physician calendar dependencies."
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ## Guidepoint Transcript Digest — Primary Source Override
 

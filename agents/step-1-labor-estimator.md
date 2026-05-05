@@ -17,6 +17,22 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used for this analysis.
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials were provided.
+
+## Internal Digest — Primary Source Override
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_1_labor_pct` across all files
+3. Each anchor record has: `source_company`, `file`, `source_ref`, `raw_data`, `interpretation`, `confirmed` status
+4. **Internal anchors are the highest-priority source** — they reflect the firm's own analyzed prior-deal data, vetted by the analyst. They rank above SEC EDGAR, BLS, CMS, Guidepoint transcripts, and analyst reasoning.
+5. **Use up to 2 internal anchors as Source 1 and Source 2** in your workbook output (rows 7-8). Source 3 can come from public research for diversification, OR a third internal anchor if the analyst's confirmed data clusters tightly.
+6. **Attribution**: when writing to a workbook cell, use the format `"{Source Company} — {Doc type} ({Doc date}) [INT]"`. Example: `"Project Falcon — CIM (Mar 2024) [INT]"`. Always append `[INT]`.
+7. **Commentary cells (E7, E8, etc.)**: must include the analyst-confirmed `interpretation` text verbatim, plus the `source_ref` so the reader can trace back to the specific exhibit/page in the prior deal.
+8. **If multiple internal anchors disagree by >10pp**: flag in your report-back to the coordinator — the analyst should know that prior deals show divergent labor structures.
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ## Guidepoint Transcript Digest — Primary Source Override
 

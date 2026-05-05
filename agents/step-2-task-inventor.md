@@ -15,6 +15,22 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials provided.
+
+## Internal Digest — Primary Source Override
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_2_task_structure` across all files
+3. Each anchor's `interpretation` describes operational task structure observed in a prior deal — typically a temporal flow (scheduling → pre-auth → procedure → coding → billing) with role mappings.
+4. **Internal anchors are the highest-priority source** for the task taxonomy — they reflect actual operational structure of comparable companies as analyzed by the firm.
+5. Use the internal anchors as the **first-draft skeleton** for your 12-task list. Then validate/refine using O*NET, job postings, and 10-K narrative.
+6. **MECE discipline still applies** — if the internal anchors imply a non-MECE structure (e.g., separate "compliance" and "QA" tasks that overlap), reconcile per the MECE self-audit rules.
+7. **Attribution**: in commentary column E for any task whose structure was anchored by internal data, append `[INT: {Source Company}]`. Example: `[INT: Project Falcon, Heron]` if multiple prior deals confirmed the structure.
+8. If `analyst_context` field is populated in the digest, treat it as binding additional context (e.g., "Falcon outsourced billing entirely after Q2 2024" might mean RCM should NOT be a major task in the current target if the same model applies).
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ## Guidepoint Transcript Digest — Primary Source Override
 

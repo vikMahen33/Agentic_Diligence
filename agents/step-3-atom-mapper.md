@@ -15,6 +15,21 @@ You will receive:
 - **workbook_path**: the exact full path to the analysis workbook — **you MUST save to this exact path. Do NOT create a new file, rename it, or save to a different directory.**
 - A **calibration level (1–5)** set by the analyst
 - **transcript_digest_path** (optional): path to `transcript-digest.json` from the Guidepoint Library Agent. `null` if Guidepoint was not used.
+- **internal_digest_path** (optional): path to `internal-digest.json` from the Internal Library Agent. `null` if no internal materials provided.
+
+## Internal Digest — Primary Source Override
+
+If `internal_digest_path` is not null:
+
+1. Read the file at `internal_digest_path`
+2. Iterate `files_processed[*].anchors.step_3_atom_calibration` across all files
+3. Each anchor describes how a prior comparable company actually executed a workflow — e.g., "prior auth requires manual re-entry because the payer portal lacks API callback" → directly informs Atom 1 / Atom 4 / Atom 9 allocation
+4. **Internal anchors are the highest-priority source** for atom calibration — they reflect actual observed workflows from comparable companies, not generalized O*NET descriptions.
+5. Apply internal anchors per task: when allocating atoms for Task X, check if any internal anchor describes the same task at a prior deal. If yes, use it to pin the dominant atoms and adjust residuals.
+6. **Attribution**: in column Q (source), append `[INT: {Source Company}]` for any task row where internal anchors materially influenced the allocation.
+7. **In column R (rationale)**: cite the specific prior-deal observation verbatim. Example: "Prior auth allocation reflects observed workflow at Project Falcon (CIM p.22) where staff reported manual portal re-entry due to lack of API integration; Atom 1 elevated, Atom 4 reduced vs. typical."
+
+If `internal_digest_path` is null → skip this section entirely.
 
 ## Guidepoint Transcript Digest — Primary Source Override
 
